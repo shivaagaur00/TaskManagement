@@ -3,6 +3,7 @@ import { auth, db } from './firebase';
 import { useNavigate } from 'react-router-dom';
 import { onValue, ref, update, set } from 'firebase/database';
 import Sidebar from './sidebar';
+import { onAuthStateChanged } from 'firebase/auth'; 
 import './App.css';
 
 function PendingTasks() {
@@ -12,7 +13,7 @@ function PendingTasks() {
 
   useEffect(() => {
     const fetchTasks = () => {
-      auth.onAuthStateChanged((user) => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user) {
           onValue(ref(db, `/${auth.currentUser.uid}`), (snapshot) => {
             const data = snapshot.val();
@@ -23,6 +24,7 @@ function PendingTasks() {
                   const taskDeadline = new Date(task.deadline);
                   const currentDate = new Date();
 
+                  // If task is not completed and deadline has passed, move to failedTasks
                   if (!task.completed && taskDeadline < currentDate) {
                     const failedTaskRef = ref(db, `/${auth.currentUser.uid}/failedTasks/${task.uiduid}`);
                     set(failedTaskRef, task);
@@ -42,6 +44,8 @@ function PendingTasks() {
           navigate('/');
         }
       });
+
+      return () => unsubscribe(); // Cleanup on unmount
     };
 
     fetchTasks();
@@ -51,7 +55,7 @@ function PendingTasks() {
     const taskRef = ref(db, `/${auth.currentUser.uid}/${taskId}`);
     update(taskRef, { completed: true })
       .then(() => {
-        setList((prevList) => prevList.filter((task) => task.uiduid !== taskId));
+        setList((prevList) => prevList.filter((task) => task.uiduid !== taskId)); // Update local state
       })
       .catch((err) => {
         console.error('Error completing task:', err);

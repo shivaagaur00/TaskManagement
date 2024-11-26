@@ -7,7 +7,7 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "./firebase";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import LockIcon from "@mui/icons-material/Lock";
@@ -140,6 +140,7 @@ function Loginpage() {
               <button className="accountbutton" onClick={handleAnonymousLogin}>
                 Continue as GUEST
               </button>
+              <Link to="/home" className="home-button"><button className="home-button">Home</button></Link>
             </>
           ) : (
             <>

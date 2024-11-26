@@ -16,7 +16,7 @@ function TodoList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         onValue(ref(db, `/${auth.currentUser.uid}`), (snapshot) => {
           setList([]); // Clear previous tasks
@@ -34,6 +34,8 @@ function TodoList() {
         navigate('/');
       }
     });
+
+    return () => unsubscribe(); // Cleanup on unmount
   }, [navigate]);
 
   const addtofirebase = () => {
